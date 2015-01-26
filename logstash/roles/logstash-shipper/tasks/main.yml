@@ -1,0 +1,14 @@
+---
+- include: ../../logstash-base/tasks/main.yml
+
+- name: Configure logstash shipper
+  template: src=shipper_template.conf dest={{ installation_path }}/shipper.conf
+
+- name: Configure additional patterns
+  copy: src=../templates/custome_patterns.regexes dest={{ installation_path }}/logstash-{{ logstash_version }}/patterns/custome_patterns
+
+- name: Configure logstash init-script
+  template: src=logstash_init.sh dest=/etc/init.d/logstash mode=0755
+
+- name: Adding logstash to services
+  service: enabled=yes name=logstash state=started

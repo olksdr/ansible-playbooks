@@ -1,0 +1,120 @@
+#!/bin/bash
+#
+# @author: Oleksandr Kylymnychenko
+#
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+TAG="index-dropper"
+
+# prints help and explanation how to use this script
+function usage {
+        cat <<EOF
+
+The main purpose of this scripts is to delete old indices 
+from elasticsearch to get some space back. 
+As parameters this script takes a name of the index and
+the number of days to keep it, see bellow.
+
+Usage:
+$(basename $0) [-i '<indexname>=<number of days>'] [-a <ip address>|<dns name of the host>] [-h]
+
+Options:
+        -i index name and days to keep this index, takes a key=val as a parameter 
+           (delimiter is '=' without any spaces in between). !!!Should be specified!!!
+        -a address of the server to use for queries
+        -h prints this help
+
+For example:
+        $(basename $0)  -i 'cataline=3' -i 'postfix=10'
+
+EOF
+}
+
+function run_job {
+        for INDEX in ${INDICES_TO_CHECK[@]}; do
+                local indx=$(echo ${INDEX%%=*} | tr -d ' ')
+                local nr_of_days=$(echo ${INDEX#*=} | tr -d ' ')
+                case $nr_of_days in
+                        ''|*[!0-9]*)
+                                echo "$nr_of_days - is not a number (integer), see help"
+                                exit 1
+                                ;;
+                esac
+                delete_index $indx $nr_of_days
+        done
+
+}
+
+function fetch_all_indices {
+        for INDEX in $(curl --silent http://$ES_ADDRESS:9200/_cat/indices | awk '{print $3}'); do
+                EXISTING_INDICES=(${EXISTING_INDICES[@]} $INDEX)
+        done
+        if [ -z $EXISTING_INDICES ]; then 
+                logger -p local0.notice -t $TAG "There was no indices found on the server. Please check the IP or the name of the server you provided. Exiting(1).."
+                exit 1;
+        fi
+}
+
+function delete_index {
+        local index_name=$1
+        local days_to_keep=$2
+        local oldest=$(date --date="- $days_to_keep day" +'%s')
+        for EXINDEX in ${EXISTING_INDICES[@]}; do
+                local ex_idx_name=$(echo $EXINDEX | awk -F'-' '{print $1}')
+                if [ "$ex_idx_name" == "$index_name" ]; then
+                        local ex_time=$(date --date="$(echo $EXINDEX | awk -F'-' '{print $2}' | tr -d '\.')" +'%s')
+                        if [ "$ex_time" -le "$oldest" ]; then
+                                local result=$(curl --silent -XDELETE http://$ES_ADDRESS:9200/$EXINDEX)
+                                logger -p local0.notice -t $TAG  "Deleting an index: $EXINDEX.. $result"
+                        fi
+                fi
+        done
+}
+
+while getopts ':i: :h :a:' opt; do
+        case $opt in
+                i)
+                        INDICES_TO_CHECK=("${INDICES_TO_CHECK[@]}" $OPTARG)
+                        ;;
+                h)
+                        usage
+                        exit 0
+                        ;;
+                a)
+                        ES_ADDRESS=$OPTARG
+                        ;;
+                \?)
+                        echo ""
+                        echo "Invalid option -$OPTARG. Use -h option to see the help page"
+                        echo ""
+                        exit 1
+                        ;;
+                :)
+                        echo ""
+                        echo "Option -$OPTARG requires an argument. Use -h option to see the help page"
+                        echo ""
+                        exit 1
+                        ;;
+        esac
+done
+
+if [ -z $INDICES_TO_CHECK ]; then
+        echo ""
+        echo "You should give at least one index name with days to keep it."
+        echo "Use -h option to see the help page"
+        echo ""
+        exit 1;
+fi
+
+logger -p local0.notice -t $TAG "Starting: [$(date -R)]"
+
+if [ -z $ES_ADDRESS ]; then
+        # using localhost by default
+        ES_ADDRESS='127.0.0.1'
+        logger -p local0.notice -t $TAG "IP address of ES server was not provided. Using: [$ES_ADDRESS].."
+fi
+
+fetch_all_indices
+run_job
+
+logger -p local0.notice -t $TAG "Finished: [$(date -R)]"

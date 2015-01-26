@@ -1,0 +1,41 @@
+[logserver_es:children]
+logserver_es_dev
+logserver_es_prod
+
+[logserver_indexer:children]
+logserver_indexer_dev
+logserver_indexer_prod
+
+[logserver_es_dev]
+logdev.example.com env=dev
+
+[logserver_es_prod]
+log1.example.com env=prod
+log2.example.com env=prod
+
+[logserver_indexer_prod]
+log1.example.com env=prod
+
+[logserver_indexer_dev]
+logdev.example.com env=dev
+
+[logstash:children]
+logstash_dev
+logstash_prod
+activemq_dev
+solr_dev
+
+[logstash_dev]
+dev.example.com env=dev hostfile="dev_example_com.yml"
+u.example.com env=dev hostfile="u_example_com.yml"
+st.example.com env=dev hostfile="st_example_com.yml"
+
+[solr_dev]
+solrdev.example.com env=dev hostfile="solrdev_example_com.yml"
+
+[activemq_dev]
+acdev.example.com env=dev hostfile="acdev_example_com.yml"
+
+[logstash_prod]
+web[6:15].example.com env=prod hostfile="web_example_com.yml"
+solr[1:3].example.com env=prod hostfile="solr_example_com.yml"

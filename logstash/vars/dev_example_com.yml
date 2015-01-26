@@ -1,0 +1,7 @@
+---
+{
+  "types": [
+    { "id": "postfix", "type": "postfix", "path": "/var/log/maillog" },
+    { "id": "tomcat_access_logs", "type": "tomcat_access_logs", "path": "/opt/dev/logs/localhost_access_log.*.txt" }
+  ]
+}

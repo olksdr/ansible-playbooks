@@ -1,0 +1,5 @@
+---
+{
+"logstash_version": 1.4.2,
+"broker_ip": 192.0.2.100
+}

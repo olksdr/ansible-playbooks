@@ -1,0 +1,12 @@
+---
+- name: Install redis via yum
+  yum: name=redis state=latest
+
+- name: Copy over a custome config file to the server 
+  template: src=redis.conf dest={{ installation_path }}/redis.conf
+
+- name: Include the custome config file
+  lineinfile: dest=/etc/redis.conf regexp="^include {{ installation_path }}/redis.conf" insertafter=EOF line="include {{ installation_path }}/redis.conf"
+
+- name: Adding redis to services
+  service: enabled=yes name=redis state=started

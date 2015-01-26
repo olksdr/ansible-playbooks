@@ -1,0 +1,10 @@
+cluster.name: {{ cluster_name }}
+
+index.number_of_shards: 1
+index.number_of_replicas: 0
+
+path.data: {{ installation_path }}/elasticsearch_data
+path.logs: /var/log/elasticsearch
+
+http.cors.enabled: true
+

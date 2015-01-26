@@ -1,0 +1,49 @@
+---
+- name: Download elasticsearch
+  get_url: url=https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-{{ es_version }}.tar.gz dest={{ installation_path }}
+
+- name: Extract archive
+  command: chdir={{ installation_path }} /bin/tar xvf elasticsearch-{{ es_version }}.tar.gz -C {{ installation_path }}
+
+- name: Removing downloaded archive
+  file: path={{ installation_path }}/elasticsearch-{{ es_version }}.tar.gz state=absent
+
+- name: Download elasticsearch service wrapper
+  get_url: url=https://github.com/elasticsearch/elasticsearch-servicewrapper/archive/master.zip validate_certs=no dest={{ installation_path }}
+
+- name: Extract service wrapper
+  command: chdir={{ installation_path }} unzip -o master.zip
+
+- name: Copy service wrapper to destination
+  command: chdir={{ installation_path }}/master cp -r service {{ installation_path }}/elasticsearch-{{ es_version }}/bin
+
+- name: Change ownership of elasticsearch
+  file: path={{ installation_path }}/elasticsearch-{{ es_version }} owner={{ service_user }} group={{ service_group }} state=directory recurse=yes
+
+- name: Configure elasticsearch service wrapper
+  template: src=elasticsearch_{{ env }}.conf dest={{ installation_path }}/elasticsearch-{{ es_version }}/bin/service/elasticsearch.conf 
+
+- name: Configure elasticsearch server
+  template: src=elasticsearch_{{ env }}.yml dest={{ installation_path }}/elasticsearch-{{ es_version }}/config/elasticsearch.yml
+
+- name: Configure logrotate for elasticsearch
+  template: src=elasticsearch_logrotate.conf dest=/etc/logrotate.d/elasticsearch mode=0644
+
+- name: Install elasticsearch init script
+  template: src=elasticsearch_init.sh dest=/etc/init.d/elasticsearch mode=0755
+
+- name: Adding elasticsearch to services
+  service: enabled=yes name=elasticsearch state=started
+
+- name: Preapering a dir for additional scripts
+  file: path={{ installation_path }}/scripts state=directory owner={{ service_user }} group={{ service_group }}
+  tags:
+    - scripts
+
+- name: Copying over a crontab script 
+  copy: src=../templates/es_indices_dropper dest={{ installation_path }}/scripts/es_indices_dropper.sh mode="755"
+  tags:
+    - cron
+    - scripts
+
+- include: cron.yml

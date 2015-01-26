@@ -1,0 +1,8 @@
+---
+- include: ../../logstash-base/tasks/main.yml
+
+- name: Configure logstash init-script
+  template: src=logstash-web_init.sh dest=/etc/init.d/logstash-web mode=0755
+
+- name: Adding logstash-web to services
+  service: enabled=yes name=logstash-web state=started

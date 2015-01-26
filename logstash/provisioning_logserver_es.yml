@@ -1,0 +1,13 @@
+---
+# This playbook deploys elasticsearch and redis (broker)
+
+- hosts: logserver_es
+  user: root
+
+  vars_files:
+    - "vars/base.yml"
+    - "vars/elasticsearch_{{ env }}.yml"
+
+  roles:
+  - elasticsearch
+  - redis

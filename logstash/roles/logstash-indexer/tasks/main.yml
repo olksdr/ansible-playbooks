@@ -1,0 +1,26 @@
+---
+- include: ../../logstash-base/tasks/main.yml
+
+- name: Configure logstash indexer
+  template: src=indexer.conf dest={{ installation_path }}
+
+- name: Configure logstash default template
+  template: src=logstash_template.json dest={{ installation_path }}/logstash_default.json
+
+- name: Configure logstash catalina template
+  template: src=logstash_catalina_template.json dest={{ installation_path }}/catalina.json
+
+- name: Configure logstash postfix template
+  template: src=logstash_postfix_template.json dest={{ installation_path }}/postfix.json
+
+- name: Configure logstash activemq template
+  template: src=logstash_activemq_template.json dest={{ installation_path }}/activemq.json
+
+- name: Configure logstash tomcat_access_logs template
+  template: src=logstash_tomcat_access_logs_template.json dest={{ installation_path }}/tomcat_access_logs.json
+
+- name: Configure logstash init-script
+  template: src=logstash-indexer_init.sh dest=/etc/init.d/logstash-indexer mode=0755
+
+- name: Adding logstash-indexer to services
+  service: enabled=yes name=logstash-indexer state=started

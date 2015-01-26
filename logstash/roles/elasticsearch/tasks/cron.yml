@@ -1,0 +1,5 @@
+- name: Create a cron job for deleting old indices from DB
+  cron: name="removes old logstash indices" cron_file="drop_logstash_indices" minute="53" hour="00"
+    user="root" job="flock -n /tmp/index-dropper.lock -c \"{{ installation_path }}/scripts/es_indices_dropper.sh -i 'postfix=10' -i 'activemq=10' -i 'tomcat_access_logs=10' > /dev/null 2>&1\""
+  tags: 
+    - cron

@@ -1,0 +1,6 @@
+---
+{
+  "types": [
+    { "id": "postfix", "type": "postfix",  "path": "/var/log/maillog" }
+  ]
+}

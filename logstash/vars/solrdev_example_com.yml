@@ -1,0 +1,6 @@
+---                    
+{                      
+  "types": [           
+    { "id": "solr", "type": "catalina", path": "/opt/solr/solr_tomcat1/logs/catalina.out"}
+  ]
+}

@@ -1,0 +1,6 @@
+---
+{
+  "types": [
+    { "id": "activemq", "type": "activemq", "path": "/var/log/activemq_perfmon.log" }
+  ]
+}

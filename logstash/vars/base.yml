@@ -1,0 +1,6 @@
+---
+{
+"installation_path": /opt/logmanagement,
+"service_user": search,
+"service_group": search
+}

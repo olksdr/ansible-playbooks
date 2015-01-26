@@ -1,0 +1,22 @@
+---
+- name: Create serviceuser group {{ service_group }}
+  user: name={{ service_group }} state=present
+
+- name: Create serviceuser {{ service_user }}
+  user: name={{ service_user }} group={{ service_group }} state=present
+
+- name: Creating app-directory
+  file: path={{ installation_path }} state=directory owner={{ service_user }} group={{ service_group }}
+
+- name: Download logstash
+  get_url: url=https://download.elasticsearch.org/logstash/logstash/logstash-{{ logstash_version }}.tar.gz dest={{ installation_path }}
+
+- name: Extract logstash 
+  command: chdir={{ installation_path }} /bin/tar xvf logstash-{{ logstash_version }}.tar.gz -C {{ installation_path }}
+
+- name: Remove downloaded archive
+  file: path={{ installation_path }}/logstash-{{ logstash_version }}.tar.gz state=absent
+
+- name: Change ownership of logstash installation 
+  file: path={{ installation_path }}/logstash-{{ logstash_version }} owner={{ service_user }} group={{ service_group }} state=directory recurse=yes
+
