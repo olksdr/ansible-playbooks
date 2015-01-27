@@ -1,0 +1,18 @@
+---
+- name: Add user and group for future install
+  user: name={{ service_user }} state=present password={{ service_password }}
+
+- name: Setup up .bashrc for creates user
+  template: src=bashrc dest=/home/sybase/.bashrc owner={{ service_user }} group={{ service_group }}
+
+- name: Create {{ installation_path }} 
+  file: path={{ installation_path }}/sybase owner={{ service_user }} group={{ service_group }} state=directory
+
+- name: Setup up an old folder-path for compatibility
+  file: path={{ compat_folder }} owner={{ service_user }} group={{ service_group }} state=directory
+
+- name: Link compat. folder to a new location
+  file: src={{ installation_path }}/sybase dest={{ compat_folder }}/sybase owner={{ service_user }} group={{ service_group }} state=link
+
+- name: Setup up download dir
+  file: path={{ download_path }} owner={{ service_user }} group={{ service_group }} state=directory

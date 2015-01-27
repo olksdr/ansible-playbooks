@@ -1,0 +1,18 @@
+---
+- name: Download sybase archive
+  get_url: url={{ http_link_to_sybase_archive }}/{{ ase_archive }} dest={{ download_path }}
+  su: yes
+
+- name: Create temp directory
+  file: path={{ download_path }}/sybase  owner={{ service_user }} group={{ service_group }} state=directory
+
+- name: Extract intaller
+  command: chdir={{ download_path }} /bin/tar xvf {{ ase_archive }} -C {{ download_path }}/sybase
+  su: yes
+
+- name: Prepare responses file for silent install
+  template: src=responses.txt dest={{ download_path }} owner={{ service_user }} group={{ service_group }}
+
+- name: Run installer
+  command: "{{ download_path }}/sybase/setup.bin -f {{ download_path }}/responses.txt -i silent -DAGREE_TO_SYBASE_LICENSE=true -DRUN_SILENT=true"
+  su: yes

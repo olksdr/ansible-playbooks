@@ -1,0 +1,8 @@
+---
+{
+  "compat_folder": "/opt/sybase",
+  "download_path": "/opt/downloads",
+  "sybase_password": "sybase_user_password_here",
+  "ase_archive": "ase157_linuxx86-64.tgz",
+  "http_link_to_sybase_archive": "http://ase.example.com/path/to/sybase"
+}

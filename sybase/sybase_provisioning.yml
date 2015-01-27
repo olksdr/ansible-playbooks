@@ -1,0 +1,12 @@
+---
+- hosts: sybase
+  remote_user: root
+  su_user: sybase
+
+  vars_files:
+    - "vars/base.yml"
+    - "vars/sybase.yml"
+
+  roles:
+    - common
+    - sybase

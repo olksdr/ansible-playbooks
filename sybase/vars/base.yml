@@ -1,0 +1,7 @@
+---
+{
+  "installation_path": "/opt/common/apps",
+  "service_user": "sybase",
+  "service_group": "sybase",
+  "service_password": "password_for_future_db"
+}
