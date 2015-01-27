@@ -36,4 +36,4 @@ ansible-playbook -i hosts provisioning_logstash_clients.yml --limit logstash_dev
 ```
 
 
-Suggestions and pul request are welcomed.
+Suggestions and pull requests are welcomed.
